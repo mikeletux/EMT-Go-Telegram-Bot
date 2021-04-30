@@ -6,6 +6,9 @@ import (
 
 	"github.com/mikeletux/EMT-Go-Telegram-Bot/pkg/auth"
 	"github.com/mikeletux/EMT-Go-Telegram-Bot/pkg/bot"
+	"github.com/mikeletux/EMT-Go-Telegram-Bot/pkg/emt"
+
+	"github.com/mikeletux/goemt"
 )
 
 func main() {
@@ -21,6 +24,17 @@ func main() {
 	// Create auth struct
 	auth := auth.NewSimpleAuth(allowedUsers)
 
+	// Create EMT
+	configProtected := goemt.ClientConfig{
+		Enpoint:   os.Getenv("EMT_ENDPOINT"), // in this case will be https://openapi.emtmadrid.es/v2
+		XClientID: os.Getenv("EMT_XCLIENTID"),
+		PassKey:   os.Getenv("EMT_PASSKEY"),
+	}
+	emt, err := emt.NewGoEMT(configProtected)
+	if err != nil {
+		panic(fmt.Sprintf("there was an issue when creating emt - %s", err))
+	}
+
 	// Set TelegramBot config
 	config := bot.TelegramBotConfig{
 		Token: telegramBotToken,
@@ -28,7 +42,7 @@ func main() {
 	}
 
 	// Create TelegramBot
-	bot, err := bot.NewTelegramBot(config, auth)
+	bot, err := bot.NewTelegramBot(config, auth, emt)
 	if err != nil {
 		panic(fmt.Sprintf("error when creating the Telegram bot - %s", err))
 	}

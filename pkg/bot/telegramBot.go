@@ -3,9 +3,11 @@ package bot
 import (
 	"fmt"
 	"log"
+	"strconv"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/mikeletux/EMT-Go-Telegram-Bot/pkg/auth"
+	"github.com/mikeletux/EMT-Go-Telegram-Bot/pkg/emt"
 )
 
 type TelegramBotConfig struct {
@@ -24,9 +26,10 @@ type TelegramBot struct {
 	Auth auth.Auth
 
 	// Client for EMT
+	Emt emt.Emt
 }
 
-func NewTelegramBot(config TelegramBotConfig, auth auth.Auth) (*TelegramBot, error) {
+func NewTelegramBot(config TelegramBotConfig, auth auth.Auth, emt emt.Emt) (*TelegramBot, error) {
 	telegramBot := &TelegramBot{}
 
 	bot, err := tgbotapi.NewBotAPI(config.Token)
@@ -40,6 +43,7 @@ func NewTelegramBot(config TelegramBotConfig, auth auth.Auth) (*TelegramBot, err
 
 	telegramBot.Bot = bot
 	telegramBot.Auth = auth
+	telegramBot.Emt = emt
 
 	return telegramBot, nil
 }
@@ -64,10 +68,26 @@ func (b *TelegramBot) Run() error {
 
 		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
 
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
-		msg.ReplyToMessageID = update.Message.MessageID
+		if update.Message.IsCommand() {
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 
-		b.Bot.Send(msg)
+			switch update.Message.Command() {
+			case "bus_wait_times":
+				//Get argument
+				busStop, err := strconv.Atoi(update.Message.CommandArguments())
+				if err != nil {
+					continue
+				}
+
+				// Get bus info
+				msg.Text = b.Emt.GetBusWaitingTimes(busStop)
+
+			case "help":
+
+			}
+
+			b.Bot.Send(msg)
+		}
 	}
 	return nil //This will never be reached
 }
