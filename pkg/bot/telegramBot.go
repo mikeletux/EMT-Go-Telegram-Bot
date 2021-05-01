@@ -3,7 +3,6 @@ package bot
 import (
 	"fmt"
 	"log"
-	"strconv"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/mikeletux/EMT-Go-Telegram-Bot/pkg/auth"
@@ -71,21 +70,12 @@ func (b *TelegramBot) Run() error {
 		if update.Message.IsCommand() {
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 
-			switch update.Message.Command() {
-			case "bus_wait_times":
-				//Get argument
-				busStop, err := strconv.Atoi(update.Message.CommandArguments())
-				if err != nil {
-					continue
-				}
-
-				// Get bus info
-				msg.Text = b.Emt.GetBusWaitingTimes(busStop)
-
-			case "help":
-
+			res, err := b.Emt.PerformAction(update.Message.Command(), update.Message.CommandArguments())
+			if err != nil {
+				msg.Text = fmt.Sprintf("[Error] - %s", err)
+			} else {
+				msg.Text = res
 			}
-
 			b.Bot.Send(msg)
 		}
 	}

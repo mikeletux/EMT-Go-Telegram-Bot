@@ -2,19 +2,22 @@ package emt
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/mikeletux/goemt"
-	"github.com/mikeletux/goemt/busemtmad"
 )
 
 type Emt interface {
-	// GetBusWaitingTimes must return a formated string about bus waiting times
-	GetBusWaitingTimes(stopID int) string
+	PerformAction(command string, arguments string) (string, error)
 	Logout() error
 }
 
 type goEMT struct {
+	// Client is the struct that will hold the EMT client
 	Client *goemt.APIClient
+
+	// Handlers is where all action handlers will be defined
+	Handlers map[string]Handler
 }
 
 func NewGoEMT(config goemt.ClientConfig) (Emt, error) {
@@ -24,33 +27,27 @@ func NewGoEMT(config goemt.ClientConfig) (Emt, error) {
 		return nil, err
 	}
 	goEMT.Client = c
-	return &goEMT, nil
+	goEMT.Handlers = GetAllHandlers()
 
+	return &goEMT, nil
 }
 
-func (e *goEMT) GetBusWaitingTimes(stopID int) string {
-	//GetTimeArrivalBus func needs a struct to use it when post
-	postData := busemtmad.PostInfoTimeArrival{
-		CultureInfo:             "ES",
-		TextStopRequired:        "Y",
-		TextEstimationsRequired: "Y",
-		TextIncidencesRequired:  "N",
+func (e *goEMT) PerformAction(command string, arguments string) (string, error) {
+	// Check if help
+	if command == "help" {
+		return "Help for EMT Telegram bot:", nil
 	}
 
-	busTimes, err := busemtmad.GetTimeArrivalBus(e.Client, stopID, 0, postData)
-	if err != nil {
-		return "Couldn't retrieve bus waiting times. Contact bot administrator"
+	// Get handler
+	handler, ok := e.Handlers[command]
+	if !ok {
+		return "", fmt.Errorf("the option you chose doesn't exist")
 	}
 
-	var response string
-	for _, v := range busTimes {
-		for _, arrive := range v.Arrive {
-			response += fmt.Sprintf("Bus number %s will arrive in %d seconds and heads to %s\n\n", arrive.Line, arrive.EstimateArrive, arrive.Destination)
-		}
+	// Split arguments string
+	args := strings.Split(arguments, " ")
 
-	}
-
-	return response
+	return handler.Handler(e.Client, args)
 }
 
 func (e *goEMT) Logout() error {
