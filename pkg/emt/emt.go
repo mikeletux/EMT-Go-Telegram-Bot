@@ -18,6 +18,9 @@ type goEMT struct {
 
 	// Handlers is where all action handlers will be defined
 	Handlers map[string]Handler
+
+	// config is kept in case bot needs to reconnect to EMT services because of token expiration
+	config goemt.ClientConfig
 }
 
 func NewGoEMT(config goemt.ClientConfig) (Emt, error) {
@@ -28,14 +31,33 @@ func NewGoEMT(config goemt.ClientConfig) (Emt, error) {
 	}
 	goEMT.Client = c
 	goEMT.Handlers = GetAllHandlers()
+	goEMT.config = config
 
 	return &goEMT, nil
 }
 
+func (e *goEMT) reconnect() error {
+	c, err := goemt.Connect(e.config)
+	if err != nil {
+		return err
+	}
+	e.Client = c
+	return nil
+}
+
 func (e *goEMT) PerformAction(command string, arguments string) (string, error) {
-	// Check if help
+	// Check if help is chosen
 	if command == "help" {
-		return "Help for EMT Telegram bot:", nil
+		helpStr := fmt.Sprint("Help from EMT Telegram bot\n--------\n")
+		for k, v := range e.Handlers {
+			helpStr += fmt.Sprintf("/%s - %s\n--------\n", k, v.Description)
+		}
+		return helpStr, nil
+	}
+
+	// Check if token from API is expired
+	if e.Client.IsTokenExpired() {
+		e.reconnect()
 	}
 
 	// Get handler

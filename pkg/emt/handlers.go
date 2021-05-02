@@ -20,7 +20,7 @@ func GetAllHandlers() map[string]Handler {
 	return map[string]Handler{
 		"bus_wait_times": {
 			Description: "This command returns the bus waiting times given a stop ID.\n" +
-				"Arguments: [1]: ID from the stop to query",
+				"\tArguments: [1]: ID from the stop to query",
 			Handler: HandlerGetBusWaitingTimes,
 		},
 	}
@@ -49,9 +49,8 @@ func HandlerGetBusWaitingTimes(c goemt.IAPI, arguments []string) (string, error)
 	var response string
 	for _, v := range busTimes {
 		for _, arrive := range v.Arrive {
-			response += fmt.Sprintf("Bus number %s will arrive in %d seconds and heads to %s\n\n", arrive.Line, arrive.EstimateArrive, arrive.Destination)
+			response += fmt.Sprintf("%s[%s]%s arrives in %d mins\n\n", busFrontEmoji, arrive.Line, arrive.Destination, arrive.EstimateArrive/60)
 		}
-
 	}
 
 	return response, nil
