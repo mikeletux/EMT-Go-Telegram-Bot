@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/mikeletux/EMT-Go-Telegram-Bot/pkg/auth"
 	"github.com/mikeletux/EMT-Go-Telegram-Bot/pkg/bot"
@@ -19,7 +20,7 @@ func main() {
 	}
 
 	// Create allowed users for auth
-	allowedUsers := []string{"MikeletuX"}
+	allowedUsers := strings.Split(os.Getenv("TELEGRAM_ALLOWED_USERS"), ",")
 
 	// Create auth struct
 	auth := auth.NewSimpleAuth(allowedUsers)
