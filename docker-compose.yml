@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  telegram-emt-bot:
+    image: telegram-emt-bot:latest
+    environment:
+      - TELEGRAM_API_TOKEN=${TELEGRAM_API_TOKEN}
+      - TELEGRAM_ALLOWED_USERS=${TELEGRAM_ALLOWED_USERS}
+      - EMT_ENDPOINT=${EMT_ENDPOINT}
+      - EMT_XCLIENTID=${EMT_XCLIENTID}
+      - EMT_PASSKEY=${EMT_PASSKEY}

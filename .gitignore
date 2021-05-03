@@ -1,2 +1,3 @@
 cmd/secrets.sh
 .vscode
+.env
