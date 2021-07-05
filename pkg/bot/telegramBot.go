@@ -19,7 +19,7 @@ type TelegramBotConfig struct {
 
 type TelegramBot struct {
 	// Bot is be the struct in charge of speaking with Telegram servers
-	Bot *tgbotapi.BotAPI
+	Bot Bot
 
 	// Auth is the struct that implements authentication
 	Auth auth.Auth

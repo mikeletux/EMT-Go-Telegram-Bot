@@ -1,9 +1,7 @@
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible h1:2cauKuaELYAEARXRkq2LrJ0yDDv1rW7+wrTEdVL3uaU=
 github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible/go.mod h1:qf9acutJ8cwBUhm1bqgz6Bei9/C/c93FPDljKWwsOgM=
-github.com/mikeletux/goemt v0.1.0 h1:rrP9aPfcDdyRRFpNaKYC8pjfdTGiDWlhC/JqrcAOXmg=
-github.com/mikeletux/goemt v0.1.0/go.mod h1:TkBiIut2EOvLWXfT7SEpuNI8t0gJvUG44K7QhmNz1w0=
-github.com/mikeletux/goemt v0.2.0 h1:XoD+nQ13sBjp5kjLUJMU7ohaBD/c+6vQqrGFgvrKnjw=
-github.com/mikeletux/goemt v0.2.0/go.mod h1:TkBiIut2EOvLWXfT7SEpuNI8t0gJvUG44K7QhmNz1w0=
+github.com/mikeletux/goemt v0.3.0 h1:DVEUPNyCf/nd3/VW1DqNhZjKivE5wtK8RB2MC9GVtPY=
+github.com/mikeletux/goemt v0.3.0/go.mod h1:TkBiIut2EOvLWXfT7SEpuNI8t0gJvUG44K7QhmNz1w0=
 github.com/technoweenie/multipartstreamer v1.0.1 h1:XRztA5MXiR1TIRHxH2uNxXxaIkKQDeX7m2XsSOlQEnM=
 github.com/technoweenie/multipartstreamer v1.0.1/go.mod h1:jNVxdtShOxzAsukZwTSw6MDx5eUJoiEBsSvzDU9uzog=
