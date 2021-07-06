@@ -3,6 +3,7 @@ package bot
 import (
 	"fmt"
 	"log"
+	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/mikeletux/EMT-Go-Telegram-Bot/pkg/auth"
@@ -24,8 +25,7 @@ type TelegramBot struct {
 	// Auth is the struct that implements authentication
 	Auth auth.Auth
 
-	// Client for EMT
-	Emt emt.Emt
+	actions *botActions
 }
 
 func NewTelegramBot(config TelegramBotConfig, auth auth.Auth, emt emt.Emt) (*TelegramBot, error) {
@@ -42,7 +42,7 @@ func NewTelegramBot(config TelegramBotConfig, auth auth.Auth, emt emt.Emt) (*Tel
 
 	telegramBot.Bot = bot
 	telegramBot.Auth = auth
-	telegramBot.Emt = emt
+	telegramBot.actions = NewBotActions(emt)
 
 	return telegramBot, nil
 }
@@ -70,7 +70,7 @@ func (b *TelegramBot) Run() error {
 		if update.Message.IsCommand() {
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 
-			res, err := b.Emt.PerformAction(update.Message.Command(), update.Message.CommandArguments())
+			res, err := b.actions.PerformAction(update.Message.Command(), strings.Split(update.Message.CommandArguments(), " "))
 			if err != nil {
 				msg.Text = fmt.Sprintf("[Error] - %s", err)
 			} else {

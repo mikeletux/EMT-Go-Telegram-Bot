@@ -14,28 +14,34 @@ type botAction struct {
 	Handler     func(emt.Emt, []string) (string, error)
 }
 
-type botActionsMap map[string]*botAction
+type botActions struct {
+	Actions map[string]*botAction
 
-func NewBotActions() botActionsMap {
-	return map[string]*botAction{
-		"bus_waiting_times": &botAction{
-			Command:     "bus_waiting_times",
-			Description: "This command returns all bus waiting times given a stop ID.",
-			Arguments: map[int]string{
-				1: "Bus stop ID to query",
-			},
-			Handler: GetAllBusWaitingTimes,
-		},
-	}
+	Emt emt.Emt
 }
 
-func (b botActionsMap) PerformAction(command string, args []string) (string, error) {
+func NewBotActions(emt emt.Emt) *botActions {
+	return &botActions{
+		Emt: emt,
+		Actions: map[string]*botAction{
+			"bus_waiting_times": {
+				Command:     "bus_waiting_times",
+				Description: "This command returns all bus waiting times given a stop ID.",
+				Arguments: map[int]string{
+					1: "Bus stop ID to query",
+				},
+				Handler: GetAllBusWaitingTimes,
+			},
+		}}
+}
+
+func (b *botActions) PerformAction(command string, args []string) (string, error) {
 	// Check if command was help
 	if command == "help" {
 		return b.PrintAllHelp(), nil
 	}
 	// Check if action exists
-	action, ok := b[command]
+	action, ok := b.Actions[command]
 	if !ok {
 		return "", fmt.Errorf("command not found")
 	}
@@ -45,23 +51,26 @@ func (b botActionsMap) PerformAction(command string, args []string) (string, err
 		return "", fmt.Errorf("number of arguments incorrect. Please check help")
 	}
 
-	// TO-DO
+	returnedData, err := action.Handler(b.Emt, args)
+	if err != nil {
+		return "", err
+	}
 
-	return "", nil
+	return returnedData, nil
 }
 
-func (b botActionsMap) PrintAllHelp() string {
+func (b *botActions) PrintAllHelp() string {
 	var help string
 	help += "Help from EMT Telegram Bot\n---\n"
 
-	keys := make([]string, 0, len(b))
-	for k := range b {
+	keys := make([]string, 0, len(b.Actions))
+	for k := range b.Actions {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
 
 	for _, k := range keys {
-		help += printHelp(b[k]) + "\n---"
+		help += printHelp(b.Actions[k]) + "\n---"
 	}
 
 	return help
@@ -71,9 +80,12 @@ func printHelp(action *botAction) string {
 	var temp string
 	for i := 0; i < len(action.Arguments); i++ {
 		temp += fmt.Sprintf("\t[%d] - %s", i+1, action.Arguments[i+1])
+		if i < len(action.Arguments)-1 {
+			temp += "\n"
+		}
 	}
 
-	return fmt.Sprintf("Command: %s\n" +
-		"Description: %s\n" +
-		"Arguments:\n" + temp)
+	return fmt.Sprintf("Command: %s\n"+
+		"Description: %s\n"+
+		"Arguments:\n %s", action.Command, action.Description, temp)
 }
