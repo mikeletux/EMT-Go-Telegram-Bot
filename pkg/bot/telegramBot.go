@@ -3,7 +3,10 @@ package bot
 import (
 	"fmt"
 	"log"
+	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/mikeletux/EMT-Go-Telegram-Bot/pkg/auth"
@@ -56,29 +59,43 @@ func (b *TelegramBot) Run() error {
 		return fmt.Errorf("couldn't retrieve updates channel - %s", err)
 	}
 
-	for update := range updates {
-		if update.Message == nil { // ignore any non-Message Updates
-			continue
-		}
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, syscall.SIGTERM, syscall.SIGINT)
 
-		if ok := b.Auth.CheckUser(update.Message.From.UserName); !ok {
-			continue // ignore non allowed users
-		}
-
-		log.Printf("[INFO] user: %s - message: %s", update.Message.From.UserName, update.Message.Text)
-
-		if update.Message.IsCommand() {
-			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
-			msg.ParseMode = tgbotapi.ModeMarkdown
-
-			res, err := b.actions.PerformAction(update.Message.Command(), strings.Split(update.Message.CommandArguments(), " "))
-			if err != nil {
-				msg.Text = fmt.Sprintf("[Error] - %s", err)
-			} else {
-				msg.Text = res
+	for {
+		select {
+		case update := <-updates:
+			if update.Message == nil { // ignore any non-Message Updates
+				continue
 			}
-			b.Bot.Send(msg)
+
+			if ok := b.Auth.CheckUser(update.Message.From.UserName); !ok {
+				continue // ignore non allowed users
+			}
+
+			log.Printf("[INFO] user: %s - message: %s", update.Message.From.UserName, update.Message.Text)
+
+			if update.Message.IsCommand() {
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
+				msg.ParseMode = tgbotapi.ModeMarkdown
+
+				res, err := b.actions.PerformAction(update.Message.Command(), strings.Split(update.Message.CommandArguments(), " "))
+				if err != nil {
+					msg.Text = fmt.Sprintf("[Error] - %s", err)
+				} else {
+					msg.Text = res
+				}
+				b.Bot.Send(msg)
+			}
+		case <-c:
+			log.Printf("[INFO] finishing gracefully telegram bot...")
+			err := b.actions.Emt.Logout()
+			if err != nil {
+				return err
+			}
+			log.Printf("[INFO] EMT client closed successfully")
+			return nil
 		}
 	}
-	return nil //This will never be reached
+
 }
