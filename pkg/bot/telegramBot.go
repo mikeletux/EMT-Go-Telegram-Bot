@@ -65,10 +65,11 @@ func (b *TelegramBot) Run() error {
 			continue // ignore non allowed users
 		}
 
-		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
+		log.Printf("[INFO] user: %s - message: %s", update.Message.From.UserName, update.Message.Text)
 
 		if update.Message.IsCommand() {
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
+			msg.ParseMode = tgbotapi.ModeMarkdown
 
 			res, err := b.actions.PerformAction(update.Message.Command(), strings.Split(update.Message.CommandArguments(), " "))
 			if err != nil {

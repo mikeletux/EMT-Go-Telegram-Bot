@@ -1,3 +1,4 @@
 cmd/secrets.sh
 .vscode
 .env
+.devcontainer

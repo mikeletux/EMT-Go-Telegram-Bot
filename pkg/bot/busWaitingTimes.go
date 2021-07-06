@@ -22,7 +22,7 @@ func GetAllBusWaitingTimes(emt emt.Emt, args []string) (string, error) {
 	var response string
 	for _, v := range busTimes {
 		for _, arrive := range v.Arrive {
-			response += fmt.Sprintf("%s[%s]%s arrives in %d mins\n\n", busFrontEmoji, arrive.Line, arrive.Destination, arrive.EstimateArrive/60)
+			response += fmt.Sprintf("%s\\[%s]%s arrives in %d mins\n\n", busFrontEmoji, arrive.Line, arrive.Destination, arrive.EstimateArrive/60)
 		}
 	}
 

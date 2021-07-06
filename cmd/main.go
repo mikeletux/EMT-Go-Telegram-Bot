@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strings"
 
@@ -35,6 +36,7 @@ func main() {
 	if err != nil {
 		panic(fmt.Sprintf("there was an issue when creating emt - %s", err))
 	}
+	log.Println("Authorized on Mobility Labs EMT API")
 
 	// Set TelegramBot config
 	config := bot.TelegramBotConfig{
@@ -50,4 +52,7 @@ func main() {
 
 	// Run the bot
 	err = bot.Run()
+	if err != nil {
+		panic(err)
+	}
 }

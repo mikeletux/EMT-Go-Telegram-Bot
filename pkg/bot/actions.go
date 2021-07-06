@@ -32,14 +32,18 @@ func NewBotActions(emt emt.Emt) *botActions {
 				},
 				Handler: GetAllBusWaitingTimes,
 			},
+			// Add new actions here
 		}}
 }
 
 func (b *botActions) PerformAction(command string, args []string) (string, error) {
 	// Check if command was help
 	if command == "help" {
-		return b.PrintAllHelp(), nil
+		return b.printAllHelp(), nil
 	}
+
+	// TO-DO write about
+
 	// Check if action exists
 	action, ok := b.Actions[command]
 	if !ok {
@@ -59,9 +63,9 @@ func (b *botActions) PerformAction(command string, args []string) (string, error
 	return returnedData, nil
 }
 
-func (b *botActions) PrintAllHelp() string {
+func (b *botActions) printAllHelp() string {
 	var help string
-	help += "Help from EMT Telegram Bot\n---\n"
+	help += fmt.Sprintf("%s Help from EMT Telegram Bot %s\n\n", busSideEmoji, busSideEmoji)
 
 	keys := make([]string, 0, len(b.Actions))
 	for k := range b.Actions {
@@ -70,7 +74,7 @@ func (b *botActions) PrintAllHelp() string {
 	sort.Strings(keys)
 
 	for _, k := range keys {
-		help += printHelp(b.Actions[k]) + "\n---"
+		help += printHelp(b.Actions[k]) + "\n"
 	}
 
 	return help
@@ -79,13 +83,13 @@ func (b *botActions) PrintAllHelp() string {
 func printHelp(action *botAction) string {
 	var temp string
 	for i := 0; i < len(action.Arguments); i++ {
-		temp += fmt.Sprintf("\t[%d] - %s", i+1, action.Arguments[i+1])
+		temp += fmt.Sprintf("\t - \\[%d] %s", i+1, action.Arguments[i+1])
 		if i < len(action.Arguments)-1 {
 			temp += "\n"
 		}
 	}
 
-	return fmt.Sprintf("Command: %s\n"+
-		"Description: %s\n"+
-		"Arguments:\n %s", action.Command, action.Description, temp)
+	return fmt.Sprintf("Command: */%s*\n"+
+		" - *Description*: %s\n"+
+		" - *Arguments*:\n %s", action.Command, action.Description, temp)
 }
