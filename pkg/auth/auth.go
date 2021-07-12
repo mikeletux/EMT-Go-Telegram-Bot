@@ -4,5 +4,5 @@ package auth
 // for autentication within the bot
 type Auth interface {
 	// CheckUser should return if the user is allows to user the service
-	CheckUser(username string) bool
+	CheckUser(username string) error
 }

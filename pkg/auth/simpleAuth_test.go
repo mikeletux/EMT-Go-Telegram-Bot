@@ -8,16 +8,19 @@ func TestSimpleAuth(t *testing.T) {
 	simpleAuth := NewSimpleAuth(authorizedUsers)
 
 	t.Run("Check users", func(t *testing.T) {
-		assertBool(t, true, simpleAuth.CheckUser("mike"))  // exists, should pass
-		assertBool(t, true, simpleAuth.CheckUser("fer"))   // exists, should pass
-		assertBool(t, true, simpleAuth.CheckUser("richi")) // exists, should pass
-		assertBool(t, false, simpleAuth.CheckUser("jur"))  // doesn't exists, should fail
+		assertError(t, false, simpleAuth.CheckUser("mike"))  // exists, should pass
+		assertError(t, false, simpleAuth.CheckUser("fer"))   // exists, should pass
+		assertError(t, false, simpleAuth.CheckUser("richi")) // exists, should pass
+		assertError(t, true, simpleAuth.CheckUser("jur"))    // doesn't exists, should fail
 	})
 }
 
-func assertBool(t testing.TB, want, got bool) {
+func assertError(t testing.TB, hasError bool, err error) {
 	t.Helper()
-	if want != got {
-		t.Errorf("error. Want %t, got %t", want, got)
+	if !hasError && err != nil {
+		t.Errorf("no error expected and got one %s", err)
+	}
+	if hasError && err == nil {
+		t.Errorf("error expected and got none")
 	}
 }

@@ -24,6 +24,11 @@ func NewBotActions(emt emt.Emt) *botActions {
 	return &botActions{
 		Emt: emt,
 		Actions: map[string]*botAction{
+			"about": {
+				Command:     "about",
+				Description: "About EMT Telegram bot",
+				Handler:     GetAbout,
+			},
 			"bus_waiting_times": {
 				Command:     "bus_waiting_times",
 				Description: "This command returns all bus waiting times given a stop ID.",
@@ -32,8 +37,8 @@ func NewBotActions(emt emt.Emt) *botActions {
 				},
 				Handler: GetAllBusWaitingTimes,
 			},
-			// Add new actions here
-		}}
+		},
+	}
 }
 
 func (b *botActions) PerformAction(command string, args []string) (string, error) {
@@ -51,7 +56,7 @@ func (b *botActions) PerformAction(command string, args []string) (string, error
 	}
 
 	// Check argument length is ok
-	if len(args) != len(action.Arguments) {
+	if action.Arguments != nil && len(args) != len(action.Arguments) {
 		return "", fmt.Errorf("number of arguments incorrect. Please check help")
 	}
 
@@ -82,11 +87,15 @@ func (b *botActions) printAllHelp() string {
 
 func printHelp(action *botAction) string {
 	var temp string
-	for i := 0; i < len(action.Arguments); i++ {
-		temp += fmt.Sprintf("\t - \\[%d] %s", i+1, action.Arguments[i+1])
-		if i < len(action.Arguments)-1 {
-			temp += "\n"
+	if len(action.Arguments) > 0 {
+		for i := 0; i < len(action.Arguments); i++ {
+			temp += fmt.Sprintf("\t - \\[%d] %s", i+1, action.Arguments[i+1])
+			if i < len(action.Arguments)-1 {
+				temp += "\n"
+			}
 		}
+	} else {
+		temp = "None\n"
 	}
 
 	return fmt.Sprintf("Command: */%s*\n"+

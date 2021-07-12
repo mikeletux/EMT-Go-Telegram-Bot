@@ -69,8 +69,14 @@ func (b *TelegramBot) Run() error {
 				continue
 			}
 
-			if ok := b.Auth.CheckUser(update.Message.From.UserName); !ok {
-				continue // ignore non allowed users
+			if err := b.Auth.CheckUser(update.Message.From.UserName); err != nil {
+				switch e := err.(type) {
+				case auth.UserNotFoundError:
+					log.Printf("User not authorized. %s", e)
+					//case auth.fataError:
+					// Do something
+				}
+				continue
 			}
 
 			log.Printf("[INFO] user: %s - message: %s", update.Message.From.UserName, update.Message.Text)
@@ -97,5 +103,4 @@ func (b *TelegramBot) Run() error {
 			return nil
 		}
 	}
-
 }
