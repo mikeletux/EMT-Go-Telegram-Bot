@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
@@ -45,7 +44,7 @@ func NewTelegramBot(config TelegramBotConfig, auth auth.Auth, emt emt.Emt) (*Tel
 
 	telegramBot.Bot = bot
 	telegramBot.Auth = auth
-	telegramBot.actions = NewBotActions(emt)
+	telegramBot.actions = NewBotActions(emt, auth)
 
 	return telegramBot, nil
 }
@@ -69,23 +68,13 @@ func (b *TelegramBot) Run() error {
 				continue
 			}
 
-			if err := b.Auth.CheckUser(update.Message.From.UserName); err != nil {
-				switch e := err.(type) {
-				case auth.UserNotFoundError:
-					log.Printf("User not authorized. %s", e)
-					//case auth.fataError:
-					// Do something
-				}
-				continue
-			}
-
 			log.Printf("[INFO] user: %s - message: %s", update.Message.From.UserName, update.Message.Text)
 
 			if update.Message.IsCommand() {
 				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 				msg.ParseMode = tgbotapi.ModeMarkdown
 
-				res, err := b.actions.PerformAction(update.Message.Command(), strings.Split(update.Message.CommandArguments(), " "))
+				res, err := b.actions.PerformAction(update.Message)
 				if err != nil {
 					msg.Text = fmt.Sprintf("[Error] - %s", err)
 				} else {

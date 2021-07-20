@@ -1,10 +1,10 @@
 package bot
 
 import (
-	. "github.com/go-telegram-bot-api/telegram-bot-api"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 type Bot interface {
-	GetUpdatesChan(UpdateConfig) (UpdatesChannel, error)
-	Send(Chattable) (Message, error)
+	GetUpdatesChan(tgbotapi.UpdateConfig) (tgbotapi.UpdatesChannel, error)
+	Send(tgbotapi.Chattable) (tgbotapi.Message, error)
 }
